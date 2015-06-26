@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Transacciones Bancarias</title>
+</head>
+<body>
+ 
+    <form action="javascript:void(0);">
+        <h2>Transacciones</h2>
+        <div><input id="listTransaccion" type="submit" value="Mostrar Transacciones"></div>
+    </form>
+	<br/>
+    <div id="mostrarTransaccionesResult"></div>
+    
+    <form action="javascript:void(0);">
+      <h2>Agregar Nueva Transaccion</h2>
+         <div><input id="numNumerodeCliente" placeholder="Introduce el Numero del Cliente"></input></div>
+         <div><input id="txtNombredeCliente" placeholder="Introduce el Nombre del Cliente"></input></div>
+		 <div><input id="txtConcepto" placeholder="Introduce el Concepto"></input></div>
+		 <div><input id="numMonto" placeholder="Introduce el Monto"></input></div>
+		 <div><input id="insertTransaccion" type="submit" value="Agregar"></div>
+    </form>
+    
+    <form action="javascript:void(0);">
+      <h2>Editar Transaccion</h2>
+         <div><input id="editTransaccionId" placeholder="Introduce el ID de la Transaccion"></input></div>
+         <div><input id="editNumerodeCliente" placeholder="Introduce el Numero del Cliente"></input></div>
+         <div><input id="editNombredeCliente" placeholder="Introduce el Nombre del Cliente"></input></div>
+		 <div><input id="editConcepto" placeholder="Introduce el Concepto"></input></div>
+		 <div><input id="editMonto" placeholder="Introduce el Monto"></input></div>
+         <div><input id="updateTransaccion" type="submit" value="Editar"></div>
+    </form>
+    
+    <form action="javascript:void(0);">
+      <h2>Eliminar Transaccion</h2>
+         <div><input id="transaccionId" placeholder="Introduce el ID de la Transaccion"></input></div>
+         <div><input id="deleteTransaccion" type="submit" value="Eliminar"></div>
+    </form>
+    
+
+    <script type="text/javascript">
+        function init() {
+
+                //gapi.client.load('transaccionendpoint', 'v1', null, 'http://localhost:8888/_ah/api');
+				gapi.client.load('transaccionendpoint', 'v1', null, 'https://transaccionesbancarias-987.appspot.com/_ah/api/');
+                document.getElementById('listTransaccion').onclick = function() {
+                    mostrarTransacciones();
+                }
+                
+                document.getElementById('insertTransaccion').onclick = function() {
+                    agregar();
+					limpiar();
+                }
+                
+                document.getElementById('updateTransaccion').onclick = function() {
+                    editar();
+					limpiar();
+                }
+                
+                document.getElementById('deleteTransaccion').onclick = function() {
+                    eliminar();
+					limpiar();
+                }
+        }
+        
+        //Funcion mostrarCatalogo
+        function mostrarTransacciones() {
+                gapi.client.transaccionendpoint.listTransaccion().execute(function(resp) {
+                        if (!resp.code) {
+                                resp.items = resp.items || [];
+                                var result = "";
+                                for (var i=0;i<resp.items.length;i++) {
+                                        result = result+ resp.items[i].numerodecliente + "..." + "<b>" + resp.items[i].nombredeCliente + "</b>" + "..." + resp.items[i].concepto + "..." + "<b>" + resp.items[i].monto + "</b>" + "..." + "<b>" + "[" + resp.items[i].id + "]" + "</b>" + "<br/>";
+                                }
+                                document.getElementById('mostrarTransaccionesResult').innerHTML = result;
+                        }
+						
+                });
+        }
+        
+        //Funcion agregar
+        function agregar() {
+                //Validando entradas de datos
+                var _NumerodeCliente = document.getElementById('numNumerodeCliente').value;
+                var _NombredeCliente = document.getElementById('txtNombredeCliente').value;
+				var _Concepto = document.getElementById('txtConcepto').value;
+				var _Monto = document.getElementById('numMonto').value;
+                
+                //Construyendo el objeto
+                var requestData = {};
+                requestData.numerodecliente = _NumerodeCliente;
+                requestData.nombredeCliente = _NombredeCliente;
+				requestData.concepto = _Concepto;
+				requestData.monto = _Monto;
+				gapi.client.transaccionendpoint.insertTransaccion(requestData).execute(function(resp) {
+                        if (!resp.code) {
+                                //Just logging to console now, you can do your check here/display message
+                                console.log(resp.id + ":" + resp.numerodecliente + ":" + resp.nombredeCliente + ":" + resp.concepto + ":" + resp.monto);
+                        }
+                });
+        }
+        
+        //Funcion editar
+        function editar() {
+                //Validando entradas de datos
+                var _ID = document.getElementById("editTransaccionId").value;
+                var _NumerodeCliente = document.getElementById('editNumerodeCliente').value;
+                var _NombredeCliente = document.getElementById('editNombredeCliente').value;
+				var _Concepto = document.getElementById('editConcepto').value;
+				var _Monto = document.getElementById('editMonto').value;
+				                
+                //Editando el objeto
+                var requestData = {};
+                requestData.id = _ID;
+                requestData.numerodecliente = _NumerodeCliente;
+                requestData.nombredeCliente = _NombredeCliente;
+				requestData.concepto = _Concepto;
+				requestData.monto = _Monto;
+				gapi.client.transaccionendpoint.updateTransaccion(requestData).execute(function(resp) {
+                        if (!resp.code) {
+                                //Just logging to console now, you can do your check here/display message
+                                console.log(resp.id + ":" + resp.numerodecliente + ":" + resp.nombredeCliente + ":" + resp.concepto + ":" + resp.monto);
+                        }
+                });
+        }
+        
+        //Funcion eliminar
+        function eliminar() {
+                //Validando entradas de datos
+                var _ID = document.getElementById('transaccionId').value;
+                
+                //Eliminando el objeto
+                var requestData = {};
+                requestData.id = _ID;
+                console.log(requestData);
+                gapi.client.transaccionendpoint.removeTransaccion(requestData).execute(function(resp) {
+                        //Just logging to console now, you can do your check here/display message
+                        console.log(resp);
+                });
+        }
+		
+		//Funcion para limpiar los campos
+		function limpiar() {
+				document.getElementById("numNumerodeCliente").value='';
+				document.getElementById("txtNombredeCliente").value='';
+				document.getElementById("txtConcepto").value='';
+				document.getElementById("numMonto").value='';
+				document.getElementById("editTransaccionId").value='';
+				document.getElementById("editNumerodeCliente").value='';
+				document.getElementById("editNombredeCliente").value='';
+				document.getElementById("editConcepto").value='';
+				document.getElementById("editMonto").value='';
+				document.getElementById("transaccionId").value='';
+		}
+        
+    </script>
+    <script src="https://apis.google.com/js/client.js?onload=init"></script>
+
+</body>
+</html>
